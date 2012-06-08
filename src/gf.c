@@ -190,10 +190,16 @@ static jl_function_t *jl_method_table_assoc_exact_by_type(jl_methtable_t *mt,
     return jl_bottom_func;
 }
 
+#include <stdio.h>
+
 static jl_function_t *jl_method_table_assoc_exact(jl_methtable_t *mt,
                                                   jl_value_t **args, size_t n)
 {
     jl_methlist_t *ml = JL_NULL;
+    fprintf (stderr, "Entering jl_method_table_assoc_exact\n");
+    fprintf (stderr, "mt: %lld\n", (long long) mt);
+    fprintf (stderr, "args: %lld\n", (long long) args);
+    fprintf (stderr, "n: %lld\n", (long long) n);
     if (n > 0) {
         jl_value_t *a0 = args[0];
         jl_value_t *ty = (jl_value_t*)jl_typeof(a0);
@@ -214,6 +220,7 @@ static jl_function_t *jl_method_table_assoc_exact(jl_methtable_t *mt,
                 ml = (jl_methlist_t*)jl_cellref(mt->cache_arg1, uid);
                 if (ml!=JL_NULL) {
                     if (ml->next==JL_NULL && n==1 && jl_tuple_len(ml->sig)==1)
+    fprintf(stderr, "Leaving -1- jl_method_table_assoc_exact\n");
                         return ml->func;
                     if (n==2) {
                         // some manually-unrolled common special cases
@@ -221,10 +228,12 @@ static jl_function_t *jl_method_table_assoc_exact(jl_methtable_t *mt,
                         jl_methlist_t *mn = ml;
                         if (jl_tuple_len(mn->sig)==2 &&
                             jl_tupleref(mn->sig,1)==(jl_value_t*)jl_typeof(a1))
+    fprintf(stderr, "Leaving -2- jl_method_table_assoc_exact\n");
                             return mn->func;
                         mn = mn->next;
                         if (mn!=JL_NULL && jl_tuple_len(mn->sig)==2 &&
                             jl_tupleref(mn->sig,1)==(jl_value_t*)jl_typeof(a1))
+    fprintf(stderr, "Leaving -3- jl_method_table_assoc_exact\n");
                             return mn->func;
                     }
                 }
@@ -237,11 +246,13 @@ static jl_function_t *jl_method_table_assoc_exact(jl_methtable_t *mt,
     while (ml != JL_NULL) {
         if (jl_tuple_len(ml->sig) == n || ml->va==jl_true) {
             if (cache_match(args, n, (jl_tuple_t*)ml->sig, ml->va==jl_true)) {
+    fprintf(stderr, "Leaving -4- jl_method_table_assoc_exact\n");
                 return ml->func;
             }
         }
         ml = ml->next;
     }
+    fprintf(stderr, "Leaving -5- jl_method_table_assoc_exact\n");
     return jl_bottom_func;
 }
 
