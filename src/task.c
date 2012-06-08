@@ -515,9 +515,12 @@ DLLEXPORT void jl_register_toplevel_eh(void)
     jl_current_task->state.eh_task->state.bt = 1;
 }
 
+#include <stdio.h>
+
 // yield to exception handler
 void jl_raise(jl_value_t *e)
 {
+    fprintf(stderr, "jl_raise: %lld", (long long) e);
     jl_task_t *eh = jl_current_task->state.eh_task;
     eh->state.err = 1;
     jl_exception_in_transit = e;
