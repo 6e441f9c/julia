@@ -517,14 +517,33 @@ DLLEXPORT void jl_register_toplevel_eh(void)
 
 #include <stdio.h>
 #include <signal.h>
+#include <libunwind.h>
 
 // yield to exception handler
 void jl_raise(jl_value_t *e)
 {
     fprintf(stderr, "jl_raise: %lld\n", (long long) e);
-    kill(getpid(), SIGTRAP);
-    kill(getpid(), SIGILL);
-    fprintf(stderr, "jl_raise self-killed\n", (long long) e);
+
+  unw_cursor_t cursor; unw_context_t uc;
+  unw_word_t ip, sp, off;
+
+  char unwind_buffer[255];
+
+  unw_getcontext(&uc);
+  unw_init_local(&cursor, &uc);
+  while (unw_step(&cursor) > 0) {
+    unw_get_reg(&cursor, UNW_REG_IP, &ip);
+    unw_get_reg(&cursor, UNW_REG_SP, &sp);
+    fprintf (stderr, "ip = %lx, sp = %lx ", (long) ip, (long) sp);
+    if(
+    unw_get_proc_name(&cursor, unwind_buffer, 250, &off) == 0
+    ){
+       fprintf(stderr, "Proc, off: %s %lld\n", unwind_buffer, (long long) off);
+    } else {
+       fprintf(stderr, "\n");
+    };
+  }
+
     jl_task_t *eh = jl_current_task->state.eh_task;
     eh->state.err = 1;
     jl_exception_in_transit = e;
