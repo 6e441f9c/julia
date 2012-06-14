@@ -1,6 +1,6 @@
 module Base
 
-if false
+if true
     # simple print definitions for debugging. enable these if something
     # goes wrong during bootstrap before printing code is available.
     length(a::Array) = arraylen(a)
@@ -30,6 +30,27 @@ if false
         end
         print(io, ")\n")
     end
+
+    function fdio(name::String, fd::Integer, own::Bool)
+        s = IOStream(name)
+        ccall(:ios_fd, Void, (Ptr{Uint8}, Int, Int32, Int32),
+		   s.ios, fd, 0, own);
+        return s
+    end
+
+    fdio(name::String, fd::Integer) = fdio(name, fd, false)
+    fdio(fd::Integer, own::Bool) = fdio(string("<fd ",fd,">"), fd, own)
+    fdio(fd::Integer) = fdio(fd, false) 
+
+
+    make_stdin_stream() = fdio("<stdin>", ccall(:jl_stdin, Int32, ()))
+    make_stderr_stream() = fdio("<stderr>", ccall(:jl_stderr, Int32, ()))
+    make_stdout_stream() = IOStream("<stdout>", ccall(:jl_stdout_stream, Any, ()))
+
+    stderr_stream = make_stderr_stream()
+
+    println(stderr_stream, "Debug definitions loaded.")
+    ccall(:write, Int, (Int, Ptr{Void}, Int32), 2, "Trying libc write.\n", 19)
 end
 
 include("sysimg.jl")
