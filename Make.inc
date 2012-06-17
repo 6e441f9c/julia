@@ -258,7 +258,7 @@ clean-$$(abspath $(2)/$(1)):
 	@-rm $$(abspath $(2)/$(1))
 $$(subst $$(abspath $(JULIAHOME))/,,$$(abspath $(2)/$(1))): $$(abspath $(2)/$(1))
 $$(abspath $(2)/$(1)): | $$(abspath $(2))
-	@ln -sf $$(abspath $(1)) $$@ 
+	@cp -r $$(abspath $(1)) $$@ 
 endef
 endif
 
