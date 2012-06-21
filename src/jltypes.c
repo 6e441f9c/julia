@@ -1041,7 +1041,6 @@ static int solve_tvar_constraints(cenv_t *env, cenv_t *soln)
                             jl_new_typevar(underscore_sym,
                                            (jl_value_t*)jl_bottom_type, v);
                     }
-                    ((jl_tvar_t*)v)->bound = 1; // ???
                 }
                 extend(T, v, soln);
             }
@@ -2532,4 +2531,5 @@ void jl_init_types(void)
     abstracttype_sym = jl_symbol("abstract_type");
     bitstype_sym = jl_symbol("bits_type");
     compositetype_sym = jl_symbol("composite_type");
+    type_goto_sym = jl_symbol("type_goto");
 }
